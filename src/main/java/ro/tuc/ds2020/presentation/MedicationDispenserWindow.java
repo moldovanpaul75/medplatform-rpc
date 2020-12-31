@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,6 +20,7 @@ public class MedicationDispenserWindow extends JFrame {
     private JTable jTable;
     private static IMedPlanRMI medPlanRMI;
     private List<MedicationPlanDTO> medPlans;
+    private UUID patientID = UUID.fromString("608ad41c-a9d3-4744-8753-77e37f81bb56");
 
     public static void newMedDispenserWindow(final IMedPlanRMI medPlanRMI) {
         EventQueue.invokeLater(() -> {
@@ -36,7 +38,7 @@ public class MedicationDispenserWindow extends JFrame {
         setResizable(false);
         setLocation(780, 220);
 
-        medPlans = medPlanRMI.findMedicationPlanById(UUID.fromString("608ad41c-a9d3-4744-8753-77e37f81bb56"));
+        medPlans = medPlanRMI.findMedicationPlanById(patientID);
 
         DefaultTableModel model = new DefaultTableModel(){
             @Override
@@ -80,7 +82,7 @@ public class MedicationDispenserWindow extends JFrame {
         jTable.removeColumn(jTable.getColumn("MedPlanId"));
         JScrollPane jSTabel = new JScrollPane(jTable);
 
-        SimpleDigitalClock clock1 = new SimpleDigitalClock();
+        SimpleDigitalClock clock1 = new SimpleDigitalClock(this);
 
         contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
@@ -92,5 +94,40 @@ public class MedicationDispenserWindow extends JFrame {
     private void getTableRow(MouseEvent e) {
         int row = jTable.getSelectedRow();
         MedicationWindow.newMedicationWindow(medPlans.get(row),this);
+    }
+
+    public void sendMessageForTaken(String medName){
+        System.out.println(medName + " taken at +" + new Date());
+        medPlanRMI.receiveMessage(medName + " taken at +" + new Date() + " by patient with id: " + patientID);
+    }
+
+    public void sendMessageForNotTakenMorning(){
+        medPlans.forEach(medPlan -> {
+            if(medPlan.isMorning() && !medPlan.isEveningTaken()){
+                medPlan.setMorningTaken(true);
+                System.out.println("Patient with id: " + patientID + " did not take medication " + medPlan.getMedication().getName() + " in the morning");
+                medPlanRMI.receiveMessage("Patient with id: " + patientID + " did not take medication " + medPlan.getMedication().getName() + " in the morning");
+            }
+        });
+    }
+
+    public void sendMessageForNotTakenAfternoon(){
+        medPlans.forEach(medPlan -> {
+            if(medPlan.isAfternoon() && !medPlan.isAfternoonTaken()){
+                medPlan.setAfternoonTaken(true);
+                System.out.println("Patient with id: " + patientID + " did not take medication " + medPlan.getMedication().getName() + " in the afternoon");
+                medPlanRMI.receiveMessage("Patient with id: " + patientID + " did not take medication " + medPlan.getMedication().getName() + " in the afternoon");
+            }
+        });
+    }
+
+    public void sendMessageForNotTakenEvening(){
+        medPlans.forEach(medPlan -> {
+            if(medPlan.isEvening() && !medPlan.isEveningTaken()){
+                medPlan.setEveningTaken(true);
+                System.out.println("Patient with id: " + patientID + " did not take medication " + medPlan.getMedication().getName() + " in the evening");
+                medPlanRMI.receiveMessage("Patient with id: " + patientID + " did not take medication " + medPlan.getMedication().getName() + " in the evening");
+            }
+        });
     }
 }

@@ -6,6 +6,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.ParseException;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class MedicationWindow extends JFrame {
 
@@ -16,14 +19,19 @@ public class MedicationWindow extends JFrame {
         EventQueue.invokeLater(() -> {
             MedicationWindow.medPlan = medPlan;
             MedicationWindow.parentWindow = parentWindow;
-            MedicationWindow frame = new MedicationWindow();
+            MedicationWindow frame = null;
+            try {
+                frame = new MedicationWindow();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
             frame.pack();
             frame.setVisible(true);
         });
     }
 
 
-    public MedicationWindow(){
+    public MedicationWindow() throws ParseException {
         setBounds(100, 100, 405, 294);
         setTitle("Medication");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -33,6 +41,7 @@ public class MedicationWindow extends JFrame {
 
         JPanel jPanel = new JPanel(new SpringLayout());
         int numPairs = 5;
+
 
         JLabel mediationLabel = new JLabel("Medication:", JLabel.TRAILING);
         JTextField medicationText = new JTextField(medPlan.getMedication().getName());
@@ -69,58 +78,77 @@ public class MedicationWindow extends JFrame {
         mediationLabel.setLabelFor(endText);
         jPanel.add(endText);
 
-        if(medPlan.isMorning() && !medPlan.isMorningTaken()) {
-            JLabel morningLabel = new JLabel("Morning:", JLabel.TRAILING);
-            JButton takeButton1 = new JButton("Taken");
 
-            takeButton1.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    medPlan.setMorningTaken(true);
-                    MedicationWindow.this.dispose();
-                }
-            });
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        LocalTime currentTime = LocalTime.parse(LocalTime.now().format(formatter));
 
-            jPanel.add(morningLabel);
-            mediationLabel.setLabelFor(takeButton1);
-            jPanel.add(takeButton1);
-            numPairs++;
+        if(currentTime.isAfter( LocalTime.parse( "08:00:00" ) )
+                &&
+                currentTime.isBefore( LocalTime.parse( "11:30:00" ))) {
+            if (medPlan.isMorning() && !medPlan.isMorningTaken()) {
+                JLabel morningLabel = new JLabel("Morning:", JLabel.TRAILING);
+                JButton takeButton1 = new JButton("Taken");
+
+                takeButton1.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        medPlan.setMorningTaken(true);
+                        parentWindow.sendMessageForTaken(medPlan.getMedication().getName());
+                        MedicationWindow.this.dispose();
+                    }
+                });
+
+                jPanel.add(morningLabel);
+                mediationLabel.setLabelFor(takeButton1);
+                jPanel.add(takeButton1);
+                numPairs++;
+            }
         }
 
-        if(medPlan.isAfternoon() && !medPlan.isAfternoonTaken()) {
-            JLabel afternoonLabel = new JLabel("Afternoon:", JLabel.TRAILING);
-            JButton takeButton2 = new JButton("Taken");
+        if(currentTime.isAfter( LocalTime.parse( "13:00:00" ) )
+                &&
+                currentTime.isBefore( LocalTime.parse( "16:30:00" ))) {
+            if (medPlan.isAfternoon() && !medPlan.isAfternoonTaken()) {
+                JLabel afternoonLabel = new JLabel("Afternoon:", JLabel.TRAILING);
+                JButton takeButton2 = new JButton("Taken");
 
-            takeButton2.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    medPlan.setAfternoonTaken(true);
-                    MedicationWindow.this.dispose();
-                }
-            });
+                takeButton2.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        medPlan.setAfternoonTaken(true);
+                        parentWindow.sendMessageForTaken(medPlan.getMedication().getName());
+                        MedicationWindow.this.dispose();
+                    }
+                });
 
-            jPanel.add(afternoonLabel);
-            mediationLabel.setLabelFor(takeButton2);
-            jPanel.add(takeButton2);
-            numPairs++;
+                jPanel.add(afternoonLabel);
+                mediationLabel.setLabelFor(takeButton2);
+                jPanel.add(takeButton2);
+                numPairs++;
+            }
         }
 
-        if(medPlan.isEvening() && !medPlan.isEveningTaken()) {
-            JLabel eveningLabel = new JLabel("Evening:", JLabel.TRAILING);
-            JButton takeButton3 = new JButton("Taken");
+        if(currentTime.isAfter( LocalTime.parse( "18:00:00" ) )
+                &&
+                currentTime.isBefore( LocalTime.parse( "21:29:59" ))){
+            if (medPlan.isEvening() && !medPlan.isEveningTaken()) {
+                JLabel eveningLabel = new JLabel("Evening:", JLabel.TRAILING);
+                JButton takeButton3 = new JButton("Taken");
 
-            takeButton3.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    medPlan.setMorningTaken(true);
-                    MedicationWindow.this.dispose();
-                }
-            });
+                takeButton3.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        medPlan.setMorningTaken(true);
+                        parentWindow.sendMessageForTaken(medPlan.getMedication().getName());
+                        MedicationWindow.this.dispose();
+                    }
+                });
 
-            jPanel.add(eveningLabel);
-            mediationLabel.setLabelFor(takeButton3);
-            jPanel.add(takeButton3);
-            numPairs++;
+                jPanel.add(eveningLabel);
+                mediationLabel.setLabelFor(takeButton3);
+                jPanel.add(takeButton3);
+                numPairs++;
+            }
         }
 
 

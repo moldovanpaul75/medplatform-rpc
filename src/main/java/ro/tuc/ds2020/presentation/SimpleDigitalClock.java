@@ -11,8 +11,10 @@ public class SimpleDigitalClock extends JPanel {
     private String aHour = "";
     private String bMinute = "";
     private String cSecond = "";
+    private static MedicationDispenserWindow parentWindow;
 
-    SimpleDigitalClock() {
+    SimpleDigitalClock(MedicationDispenserWindow medicationDispenserWindow) {
+        parentWindow = medicationDispenserWindow;
         Timer t = new Timer(1000, e -> repaint());
         t.start();
     }
@@ -24,6 +26,18 @@ public class SimpleDigitalClock extends JPanel {
         hour = calendar.get(Calendar.HOUR_OF_DAY);
         minute = calendar.get(Calendar.MINUTE);
         second = calendar.get(Calendar.SECOND);
+
+        if(hour == 11 && minute == 30 && second == 1){
+            parentWindow.sendMessageForNotTakenMorning();
+        }
+
+        if(hour == 16 && minute == 30 && second == 1){
+            parentWindow.sendMessageForNotTakenAfternoon();
+        }
+
+        if(hour == 21 && minute == 30 && second == 0){
+            parentWindow.sendMessageForNotTakenEvening();
+        }
 
         if (hour < 10) this.aHour = "0";
         if (hour >= 10) this.aHour = "";

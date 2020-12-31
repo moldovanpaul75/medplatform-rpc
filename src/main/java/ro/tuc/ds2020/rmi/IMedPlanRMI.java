@@ -8,6 +8,6 @@ import java.util.UUID;
 public interface IMedPlanRMI {
 
     String sayHelloRmi(String msg);
-
+    String receiveMessage(String msg);
     List<MedicationPlanDTO> findMedicationPlanById(UUID patientID);
 }
