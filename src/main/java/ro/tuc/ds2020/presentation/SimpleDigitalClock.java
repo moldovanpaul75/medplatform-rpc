@@ -39,6 +39,10 @@ public class SimpleDigitalClock extends JPanel {
             parentWindow.sendMessageForNotTakenEvening();
         }
 
+        if(hour == 4 && minute == 6 && second == 50){
+            parentWindow.downloadMedicationPlans();
+        }
+
         if (hour < 10) this.aHour = "0";
         if (hour >= 10) this.aHour = "";
         if (minute < 10) this.bMinute = "0";

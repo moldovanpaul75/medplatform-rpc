@@ -38,50 +38,12 @@ public class MedicationDispenserWindow extends JFrame {
         setResizable(false);
         setLocation(780, 220);
 
+
         medPlans = medPlanRMI.findMedicationPlanById(patientID);
+        jTable = new JTable();
+        createTable();
 
-        DefaultTableModel model = new DefaultTableModel(){
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        jTable = new JTable(model);
-        jTable.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                getTableRow(e);
-            }
-        });
-
-        String[] columnNames = {
-                "MedPlanId",
-                "Medication",
-                "Side Effects",
-                "Dosage",
-                "Start",
-                "End",
-                "Morning",
-                "Afternoon",
-                "Evening",
-        };
-        model.setColumnIdentifiers(columnNames);
-
-        medPlans.forEach(medPlan -> {
-            model.addRow(new Object[]{
-                    medPlan.getId(),
-                    medPlan.getMedication().getName(),
-                    medPlan.getMedication().getSideEffectList().toString(),
-                    medPlan.getDosage(),
-                    medPlan.getStart().toString(),
-                    medPlan.getEnd().toString(),
-                    medPlan.isMorning(),
-                    medPlan.isAfternoon(),
-                    medPlan.isEvening(),
-            });
-        });
-        jTable.removeColumn(jTable.getColumn("MedPlanId"));
         JScrollPane jSTabel = new JScrollPane(jTable);
-
         SimpleDigitalClock clock1 = new SimpleDigitalClock(this);
 
         contentPanel = new JPanel();
@@ -129,5 +91,48 @@ public class MedicationDispenserWindow extends JFrame {
                 medPlanRMI.receiveMessage("Patient with id: " + patientID + " did not take medication " + medPlan.getMedication().getName() + " in the evening");
             }
         });
+    }
+
+    public void downloadMedicationPlans(){
+        System.out.println("Downloading medication plans!");
+        medPlans = medPlanRMI.findMedicationPlanById(patientID);
+        createTable();
+        System.out.println(medPlans);
+    }
+
+    private void createTable(){
+        DefaultTableModel model = new DefaultTableModel(){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        String[] columnNames = {
+                "MedPlanId",
+                "Medication",
+                "Side Effects",
+                "Dosage",
+                "Start",
+                "End",
+                "Morning",
+                "Afternoon",
+                "Evening",
+        };
+        model.setColumnIdentifiers(columnNames);
+        medPlans.forEach(medPlan -> {
+            model.addRow(new Object[]{
+                    medPlan.getId(),
+                    medPlan.getMedication().getName(),
+                    medPlan.getMedication().getSideEffectList().toString(),
+                    medPlan.getDosage(),
+                    medPlan.getStart().toString(),
+                    medPlan.getEnd().toString(),
+                    medPlan.isMorning(),
+                    medPlan.isAfternoon(),
+                    medPlan.isEvening(),
+            });
+        });
+        jTable.setModel(model);
+        jTable.removeColumn(jTable.getColumn("MedPlanId"));
     }
 }
