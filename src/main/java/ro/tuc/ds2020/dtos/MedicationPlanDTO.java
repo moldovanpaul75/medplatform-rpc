@@ -9,8 +9,8 @@ public class MedicationPlanDTO extends BaseDTO {
     private static final long serialVersionUID = 1L;
 
     private String dosage;
-    private Date start;
-    private Date end;
+    private String start;
+    private String end;
     private boolean morning;
     private boolean afternoon;
     private boolean evening;
@@ -26,7 +26,7 @@ public class MedicationPlanDTO extends BaseDTO {
         super();
     }
 
-    public MedicationPlanDTO(UUID id, String dosage, Date start, Date end, boolean morning, boolean afternoon, boolean evening, MedicationDTO medication) {
+    public MedicationPlanDTO(UUID id, String dosage, String start, String end, boolean morning, boolean afternoon, boolean evening, MedicationDTO medication) {
         super(id);
         this.dosage = dosage;
         this.start = start;
@@ -45,19 +45,19 @@ public class MedicationPlanDTO extends BaseDTO {
         this.dosage = dosage;
     }
 
-    public Date getStart() {
+    public String getStart() {
         return start;
     }
 
-    public void setStart(Date start) {
+    public void setStart(String start) {
         this.start = start;
     }
 
-    public Date getEnd() {
+    public String getEnd() {
         return end;
     }
 
-    public void setEnd(Date end) {
+    public void setEnd(String end) {
         this.end = end;
     }
 

@@ -1,28 +1,32 @@
 package ro.tuc.ds2020.presentation;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ro.tuc.ds2020.dtos.MedicationPlanDTO;
+import ro.tuc.ds2020.jsonrpc.IMedPlanRPC;
 import ro.tuc.ds2020.rmi.IMedPlanRMI;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 public class MedicationDispenserWindow extends JFrame {
 
+
     private JPanel contentPanel;
     private JTable jTable;
-    private static IMedPlanRMI medPlanRMI;
+    private static IMedPlanRPC medPlanRMI;
+    private Gson gson;
     private List<MedicationPlanDTO> medPlans;
     private UUID patientID = UUID.fromString("608ad41c-a9d3-4744-8753-77e37f81bb56");
 
-    public static void newMedDispenserWindow(final IMedPlanRMI medPlanRMI) {
+    public static void newMedDispenserWindow(final IMedPlanRPC medPlanRMI) {
         EventQueue.invokeLater(() -> {
             MedicationDispenserWindow.medPlanRMI =medPlanRMI;
             MedicationDispenserWindow frame = new MedicationDispenserWindow();
@@ -39,8 +43,19 @@ public class MedicationDispenserWindow extends JFrame {
         setLocation(780, 220);
 
 
-        medPlans = medPlanRMI.findMedicationPlanById(patientID);
+        gson = new GsonBuilder().create();
+        String medPlansJson = medPlanRMI.findMedicationPlanById(patientID);
+        medPlans = Arrays.asList(gson.fromJson(medPlansJson, MedicationPlanDTO[].class));;
+
+        System.out.println(medPlans);
+
         jTable = new JTable();
+        jTable.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                getTableRow(e);
+            }
+        });
+
         createTable();
 
         JScrollPane jSTabel = new JScrollPane(jTable);
@@ -55,6 +70,7 @@ public class MedicationDispenserWindow extends JFrame {
 
     private void getTableRow(MouseEvent e) {
         int row = jTable.getSelectedRow();
+        System.out.println(row);
         MedicationWindow.newMedicationWindow(medPlans.get(row),this);
     }
 
@@ -95,7 +111,10 @@ public class MedicationDispenserWindow extends JFrame {
 
     public void downloadMedicationPlans(){
         System.out.println("Downloading medication plans!");
-        medPlans = medPlanRMI.findMedicationPlanById(patientID);
+
+        String medPlansJson = medPlanRMI.findMedicationPlanById(patientID);
+        medPlans = Arrays.asList(gson.fromJson(medPlansJson, MedicationPlanDTO[].class));
+
         createTable();
         System.out.println(medPlans);
     }
@@ -125,8 +144,8 @@ public class MedicationDispenserWindow extends JFrame {
                     medPlan.getMedication().getName(),
                     medPlan.getMedication().getSideEffectList().toString(),
                     medPlan.getDosage(),
-                    medPlan.getStart().toString(),
-                    medPlan.getEnd().toString(),
+                    medPlan.getStart(),
+                    medPlan.getEnd(),
                     medPlan.isMorning(),
                     medPlan.isAfternoon(),
                     medPlan.isEvening(),
