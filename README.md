@@ -1,3 +1,3 @@
-# DS2020_30641_Moldovan_Paul_Assignment_3
+# medplatform
 
-DS2020 Assignment 3 RPC
+Medical Platfrom Project RPC Client
